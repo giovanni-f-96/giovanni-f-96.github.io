@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auguri Dottoressa!</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ─── DESIGN TOKENS ─────────────────────────── */
+    :root {
+      --color-primary: #A41623;
+      --color-on-primary: #FFFFFF;
+      --color-bg: #FFFFFF;
+      --color-surface: #f9f7f7;
+      --color-surface-offset: #f0ecec;
+      --color-text: #1a0a0c;
+      --color-text-muted: #6b4a4e;
+      --color-text-faint: #b89598;
+      --color-divider: #e8d8da;
+
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body: 'Work Sans', 'Helvetica Neue', sans-serif;
+
+      --text-xs:   clamp(0.75rem,  0.7rem  + 0.25vw, 0.875rem);
+      --text-sm:   clamp(0.875rem, 0.8rem  + 0.35vw, 1rem);
+      --text-base: clamp(1rem,     0.95rem + 0.25vw, 1.125rem);
+      --text-lg:   clamp(1.125rem, 1rem    + 0.75vw, 1.5rem);
+      --text-xl:   clamp(1.5rem,   1.2rem  + 1.25vw, 2.25rem);
+      --text-2xl:  clamp(2rem,     1.2rem  + 2.5vw,  3.5rem);
+      --text-3xl:  clamp(2.5rem,   1rem    + 4vw,    5rem);
+
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-10: 2.5rem;
+      --space-12: 3rem;
+      --space-16: 4rem;
+      --space-20: 5rem;
+      --space-24: 6rem;
+
+      --radius-sm: 0.375rem;
+      --radius-md: 0.5rem;
+      --radius-lg: 0.75rem;
+      --radius-xl: 1rem;
+      --radius-full: 9999px;
+
+      --shadow-sm: 0 1px 2px oklch(0.15 0.04 10 / 0.08);
+      --shadow-md: 0 4px 16px oklch(0.15 0.04 10 / 0.14);
+      --shadow-lg: 0 16px 48px oklch(0.15 0.04 10 / 0.2);
+
+      --transition-interactive: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+
+      --content-default: 800px;
+    }
+
+    /* ─── RESET & BASE ──────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      scroll-behavior: smooth;
+    }
+    body {
+      min-height: 100dvh;
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      color: var(--color-text);
+      background-color: var(--color-bg);
+      overflow-x: hidden;
+    }
+    img { display: block; max-width: 100%; height: auto; }
+    button { cursor: pointer; background: none; border: none; font: inherit; }
+
+    ::selection { background: color-mix(in oklch, var(--color-primary) 20%, transparent); }
+    :focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; border-radius: var(--radius-sm); }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* ─── OVERLAY / GATE ────────────────────────── */
+    #gate {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-4);
+      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                  visibility 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #gate.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .gate-card {
+      background: var(--color-on-primary);
+      border-radius: var(--radius-xl);
+      padding: clamp(var(--space-8), 6vw, var(--space-12));
+      max-width: 440px;
+      width: 100%;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+      animation: card-enter 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes card-enter {
+      from { opacity: 0; transform: translateY(24px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .gate-logo {
+      display: flex;
+      justify-content: center;
+      margin-bottom: var(--space-2);
+    }
+
+    .gate-title {
+      font-family: var(--font-display);
+      font-size: var(--text-xl);
+      color: var(--color-text);
+      text-align: center;
+      line-height: 1.2;
+    }
+    .gate-subtitle {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .gate-form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+
+    .gate-label {
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--color-text);
+      display: block;
+      margin-bottom: var(--space-2);
+    }
+
+    .gate-input {
+      width: 100%;
+      padding: var(--space-3) var(--space-4);
+      border: 1.5px solid var(--color-divider);
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      color: var(--color-text);
+      background: var(--color-surface);
+      transition: border-color var(--transition-interactive),
+                  box-shadow var(--transition-interactive);
+    }
+    .gate-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-primary) 18%, transparent);
+    }
+
+    .gate-error {
+      font-size: var(--text-xs);
+      color: var(--color-primary);
+      font-weight: 500;
+      min-height: 1.2em;
+      transition: opacity var(--transition-interactive);
+      opacity: 0;
+    }
+    .gate-error.visible { opacity: 1; }
+
+    .gate-btn {
+      width: 100%;
+      padding: var(--space-3) var(--space-4);
+      background: var(--color-primary);
+      color: var(--color-on-primary);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      border-radius: var(--radius-md);
+      letter-spacing: 0.03em;
+      transition: background var(--transition-interactive),
+                  transform var(--transition-interactive),
+                  box-shadow var(--transition-interactive);
+    }
+    .gate-btn:hover { background: #8a1220; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+    .gate-btn:active { transform: translateY(0); box-shadow: var(--shadow-sm); }
+
+    .gate-hint {
+      font-size: var(--text-xs);
+      color: var(--color-text-faint);
+      text-align: center;
+      margin-top: calc(-1 * var(--space-2));
+    }
+
+    /* ─── MAIN CONTENT ──────────────────────────── */
+    #content {
+      opacity: 0;
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #content.visible { opacity: 1; }
+
+    /* ─── HERO ──────────────────────────────────── */
+    .hero {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: var(--space-12) var(--space-4);
+      background: var(--color-primary);
+      color: var(--color-on-primary);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 100%,
+        color-mix(in oklch, var(--color-on-primary) 8%, transparent) 0%,
+        transparent 70%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      font-size: var(--text-xs);
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: color-mix(in oklch, var(--color-on-primary) 70%, transparent);
+      margin-bottom: var(--space-6);
+    }
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: var(--text-3xl);
+      line-height: 1.05;
+      font-weight: 700;
+      color: var(--color-on-primary);
+      max-width: 14ch;
+    }
+    .hero-title em { font-style: italic; font-weight: 400; }
+    .hero-sub {
+      margin-top: var(--space-6);
+      font-size: var(--text-lg);
+      color: color-mix(in oklch, var(--color-on-primary) 75%, transparent);
+      max-width: 40ch;
+    }
+    .hero-scroll-hint {
+      position: absolute;
+      bottom: var(--space-8);
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-2);
+      color: color-mix(in oklch, var(--color-on-primary) 60%, transparent);
+      font-size: var(--text-xs);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .scroll-line {
+      width: 1px;
+      height: 40px;
+      background: color-mix(in oklch, var(--color-on-primary) 40%, transparent);
+      animation: scroll-pulse 2s ease-in-out infinite;
+    }
+    @keyframes scroll-pulse {
+      0%, 100% { transform: scaleY(1); opacity: 0.6; }
+      50%       { transform: scaleY(0.4); opacity: 1; }
+    }
+
+    /* ─── SECTIONS ──────────────────────────────── */
+    #sections-container {
+      max-width: var(--content-default);
+      margin-inline: auto;
+      padding: 0 var(--space-4);
+    }
+
+    /* TEXT SECTION */
+    .section-text {
+      padding: clamp(var(--space-16), 10vw, var(--space-24)) 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .section-text blockquote {
+      font-family: var(--font-display);
+      font-size: var(--text-2xl);
+      font-style: italic;
+      line-height: 1.25;
+      color: var(--color-text);
+      max-width: 22ch;
+      text-align: center;
+      position: relative;
+    }
+    .section-text blockquote::before {
+      content: '\201C';
+      font-size: 5em;
+      line-height: 0;
+      color: var(--color-primary);
+      opacity: 0.18;
+      position: absolute;
+      top: 0.4em;
+      left: -0.25em;
+      font-family: var(--font-display);
+    }
+
+    /* IMAGE SECTION */
+    .section-image {
+      padding: clamp(var(--space-8), 5vw, var(--space-16)) 0;
+    }
+    .section-image figure {
+      position: relative;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      will-change: transform;
+    }
+    .section-image img {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      display: block;
+    }
+    .section-image .img-placeholder {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: linear-gradient(135deg,
+        var(--color-surface-offset) 0%,
+        color-mix(in oklch, var(--color-primary) 12%, var(--color-surface)) 50%,
+        var(--color-surface-offset) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-sm);
+      color: var(--color-text-faint);
+      gap: var(--space-2);
+    }
+    .section-image .img-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        transparent 60%,
+        color-mix(in oklch, var(--color-primary) 30%, transparent) 100%
+      );
+      pointer-events: none;
+    }
+
+    /* ─── DIVIDER ────────────────────────────────── */
+    .section-divider {
+      width: 48px;
+      height: 2px;
+      background: var(--color-primary);
+      margin: 0 auto;
+      opacity: 0.4;
+    }
+
+    /* ─── FOOTER ─────────────────────────────────── */
+    footer {
+      background: var(--color-primary);
+      color: var(--color-on-primary);
+      text-align: center;
+      padding: var(--space-12) var(--space-4);
+      font-size: var(--text-sm);
+      opacity: 0.9;
+    }
+    footer p { color: color-mix(in oklch, var(--color-on-primary) 70%, transparent); max-width: none; }
+
+    /* ─── SCROLL ANIMATIONS ──────────────────────── */
+    /* Fallback: visible */
+    .reveal-text, .reveal-image { opacity: 1; }
+
+    @supports (animation-timeline: scroll()) {
+      .reveal-text {
+        opacity: 0;
+        animation: anim-fade-in linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 60%;
+      }
+      .reveal-image {
+        opacity: 0;
+        clip-path: inset(100% 0 0 0);
+        animation: anim-clip-reveal linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 70%;
+      }
+      /* Parallax-style scale while in view */
+      .section-image figure {
+        animation: anim-parallax-scale linear both;
+        animation-timeline: view();
+        animation-range: entry 0% exit 100%;
+      }
+    }
+
+    @keyframes anim-fade-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes anim-clip-reveal {
+      from { opacity: 0; clip-path: inset(40% 0 0 0); }
+      to   { opacity: 1; clip-path: inset(0 0 0 0); }
+    }
+    @keyframes anim-parallax-scale {
+      from { transform: scale(1.06); }
+      to   { transform: scale(1.0); }
+    }
+
+    /* ─── RESPONSIVE ─────────────────────────────── */
+    @media (max-width: 600px) {
+      .gate-card { padding: var(--space-8) var(--space-6); }
+      .hero-title { font-size: clamp(2rem, 10vw, 3.5rem); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── ACCESS GATE ─────────────────────────────── -->
+  <div id="gate" role="dialog" aria-modal="true" aria-labelledby="gate-title">
+    <div class="gate-card">
+
+      <div class="gate-logo">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" aria-label="Logo">
+          <rect width="48" height="48" rx="12" fill="#A41623"/>
+          <path d="M24 10 L38 36 H10 Z" fill="none" stroke="white" stroke-width="2.5" stroke-linejoin="round"/>
+          <circle cx="24" cy="20" r="3" fill="white" opacity="0.9"/>
+        </svg>
+      </div>
+
+      <div>
+        <h1 class="gate-title" id="gate-title">Accesso riservato</h1>
+        <p class="gate-subtitle" style="margin-top:0.5rem;">Inserisci la data in cui ci siamo conosciuti per visualizzare il contenuto.</p>
+      </div>
+
+      <form class="gate-form" id="gate-form" novalidate>
+        <div>
+          <label class="gate-label" for="date-input">Data di accesso</label>
+          <input
+            class="gate-input"
+            type="text"
+            id="date-input"
+            name="date"
+            placeholder="GG/MM/AAAA"
+            maxlength="10"
+            autocomplete="off"
+            inputmode="numeric"
+          />
+        </div>
+        <p class="gate-error" id="gate-error" role="alert" aria-live="polite">
+          Data non valida. Riprova.
+        </p>
+        <button type="submit" class="gate-btn">Accedi</button>
+        <p class="gate-hint">Formato richiesto: GG/MM/AAAA</p>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ─── MAIN CONTENT (hidden until unlocked) ─── -->
+  <div id="content" aria-hidden="true">
+
+    <header class="hero">
+      <p class="hero-eyebrow">16/06/2026</p>
+      <h1 class="hero-title" id="hero-title"><!-- Popolato da JS --></h1>
+      <p class="hero-sub" id="hero-sub"></p>
+      <div class="hero-scroll-hint" aria-hidden="true">
+        <span>Scorri</span>
+        <div class="scroll-line"></div>
+      </div>
+    </header>
+
+    <main id="sections-container" aria-label="Contenuto principale"></main>
+
+    <footer>
+      <p>Tutti i diritti riservati &copy; 16/06/2026</p>
+    </footer>
+
+  </div>
+
+  <script>
+  (function () {
+    'use strict';
+
+    /* ── Helpers ─────────────────────────────────── */
+    function toB64(str) {
+      return btoa(unescape(encodeURIComponent(str)));
+    }
+    function fromB64(b64) {
+      try { return decodeURIComponent(escape(atob(b64))); } catch { return ''; }
+    }
+    function formatDateInput(raw) {
+      let digits = raw.replace(/\D/g, '');
+      if (digits.length > 2) digits = digits.slice(0,2) + '/' + digits.slice(2);
+      if (digits.length > 5) digits = digits.slice(0,5) + '/' + digits.slice(5);
+      return digits.slice(0, 10);
+    }
+    function isValidDate(str) {
+      const m = str.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+      if (!m) return false;
+      const [, dd, mm, yyyy] = m;
+      const d = new Date(+yyyy, +mm - 1, +dd);
+      return d.getFullYear() === +yyyy && d.getMonth() === +mm - 1 && d.getDate() === +dd;
+    }
+
+    /* ── Config load ────────────────────────────── */
+    let CONFIG = null;
+
+    async function loadConfig() {
+      try {
+        const r = await fetch('./config.json');
+        CONFIG = await r.json();
+        applyCSS(CONFIG.css);
+      } catch (e) {
+        // fallback defaults if fetch blocked in sandbox
+        CONFIG = {
+          accessKey: "MjUvMDIvMjAyMg==",
+          css: { primary: "#A41623", onPrimary: "#FFFFFF" },
+          pageConfig: {
+            "title": "Si è verificato un errore",
+            "subtitle": "Ricarica la pagina"
+          }
+        };
+        applyCSS(CONFIG.css);
+      }
+    }
+
+    function applyCSS(css) {
+      if (!css) return;
+      const root = document.documentElement;
+      if (css.primary)   root.style.setProperty('--color-primary',    css.primary);
+      if (css.onPrimary) root.style.setProperty('--color-on-primary', css.onPrimary);
+    }
+
+    /* ── Gate logic ─────────────────────────────── */
+    const gate      = document.getElementById('gate');
+    const gateForm  = document.getElementById('gate-form');
+    const dateInput = document.getElementById('date-input');
+    const gateError = document.getElementById('gate-error');
+    const content   = document.getElementById('content');
+
+    dateInput.addEventListener('input', () => {
+      dateInput.value = formatDateInput(dateInput.value);
+      gateError.classList.remove('visible');
+    });
+
+    gateForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const val = dateInput.value.trim();
+
+      if (!isValidDate(val)) {
+        gateError.textContent = 'Formato non valido (GG/MM/AAAA).';
+        gateError.classList.add('visible');
+        dateInput.focus();
+        return;
+      }
+
+      const expected = fromB64(CONFIG.accessKey);
+      if (val !== expected) {
+        gateError.textContent = 'Data non corretta. Riprova.';
+        gateError.classList.add('visible');
+        dateInput.value = '';
+        dateInput.focus();
+        return;
+      }
+
+      unlock();
+    });
+
+    function unlock() {
+      gate.classList.add('hidden');
+      content.removeAttribute('aria-hidden');
+      content.classList.add('visible');
+      buildSections();
+    }
+
+    /* ── Build sections from config ─────────────── */
+    function buildSections() {
+      const title = CONFIG?.pageConfig?.title;
+      const subtitle = CONFIG?.pageConfig?.subtitle;
+      const sections = CONFIG?.pageConfig?.sections ?? [];
+      const container = document.getElementById('sections-container');
+
+      if (title) {
+        document.getElementById('hero-title').innerHTML = title;
+      }
+      if (subtitle) {
+        document.getElementById('hero-sub').textContent = subtitle;
+      }
+
+      sections.forEach((sec, i) => {
+        if (sec.text) {
+          const el = document.createElement('section');
+          el.className = 'section-text reveal-text';
+          el.setAttribute('aria-label', 'Sezione testo');
+          el.innerHTML = `<blockquote>${sec.text}</blockquote>`;
+          container.appendChild(el);
+
+          if (i < sections.length - 1) {
+            const div = document.createElement('div');
+            div.className = 'section-divider';
+            div.setAttribute('aria-hidden', 'true');
+            container.appendChild(div);
+          }
+        } else if (sec.imagePath) {
+          const el = document.createElement('section');
+          el.className = 'section-image reveal-image';
+          el.setAttribute('aria-label', 'Sezione immagine');
+
+          const fig = document.createElement('figure');
+          const img = document.createElement('img');
+          img.src    = sec.imagePath;
+          img.alt    = `Immagine ${i + 1}`;
+          img.width  = 800;
+          img.height = 450;
+          img.setAttribute('loading', 'lazy');
+          img.setAttribute('decoding', 'async');
+
+          // Fallback placeholder se l'immagine non esiste
+          img.addEventListener('error', () => {
+            img.style.display = 'none';
+            const ph = document.createElement('div');
+            ph.className = 'img-placeholder';
+            ph.setAttribute('role', 'img');
+            ph.setAttribute('aria-label', `Immagine placeholder ${i + 1}`);
+            ph.innerHTML = `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Immagine non disponibile</span>`;
+            fig.insertBefore(ph, fig.firstChild);
+          });
+
+          const overlay = document.createElement('div');
+          overlay.className = 'img-overlay';
+          overlay.setAttribute('aria-hidden', 'true');
+
+          fig.appendChild(img);
+          fig.appendChild(overlay);
+          el.appendChild(fig);
+          container.appendChild(el);
+        }
+      });
+    }
+
+    /* ── Init ───────────────────────────────────── */
+    loadConfig();
+  })();
+  </script>
+
+</body>
+</html>
